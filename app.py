@@ -5,6 +5,7 @@ import os
 app = Flask(__name__)
 
 API_KEY = os.environ.get("GEMINI_API_KEY")
+STORE_ID = "fileSearchStores/repositoriomarfel-s2bp5sj0nwhr"
 client = genai.Client(api_key=API_KEY)
 
 @app.route("/query", methods=["POST"])
@@ -18,7 +19,16 @@ def query():
     try:
         response = client.models.generate_content(
             model="gemini-2.5-flash",
-            contents=pergunta
+            contents=pergunta,
+            config={
+                "tools": [
+                    {
+                        "file_search": {
+                            "file_search_stores": [STORE_ID]
+                        }
+                    }
+                ]
+            }
         )
         return jsonify({"answer": response.text})
     except Exception as e:
