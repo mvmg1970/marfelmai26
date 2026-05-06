@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from google import genai
+from google.genai import types
 import os
 
 app = Flask(__name__)
@@ -20,15 +21,15 @@ def query():
         response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=pergunta,
-            config={
-                "tools": [
-                    {
-                        "file_search": {
-                            "file_search_stores": [STORE_ID]
-                        }
-                    }
+            config=types.GenerateContentConfig(
+                tools=[
+                    types.Tool(
+                        file_search=types.FileSearchTool(
+                            file_search_stores=[STORE_ID]
+                        )
+                    )
                 ]
-            }
+            )
         )
         return jsonify({"answer": response.text})
     except Exception as e:
